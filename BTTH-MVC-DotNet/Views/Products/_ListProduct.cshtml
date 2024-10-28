@@ -1,0 +1,25 @@
+﻿@model IEnumerable<BTTH_MVC_DotNet.Models.Product>
+<div style="margin-top:-10px; margin-left:-5px" class="col-lg-4 col-md-4">
+    <div class="filter__found text-left">
+        <h6><span>@Model.Count()</span> Products found</h6>
+    </div>
+</div>
+<h4 style="margin-bottom:10px">Danh sách sản phẩm</h4>
+<div class="row">
+    @foreach (var item in Model)
+    {
+        <div class="col-lg-3 col-md-6 col-sm-6">
+            <div class="product__item">
+                <div class="product__item__pic set-bg" data-setbg="@Url.Content("~/Hinh/" + item.Picture)" style="background-image: url('@Url.Content("~/Hinh/" + item.Picture)'); background-size:contain">
+                    <ul class="product__item__pic__hover">
+                        <li><a asp-action="Details" asp-route-id="@item.Id"><i class="fa fa-edit"></i></a></li>
+                    </ul>
+                </div>
+                <div class="product__item__text">
+                    <h6><a href="#">@item.ProductName</a></h6>
+                    <h5>$@item.UnitPrice</h5>
+                </div>
+            </div>
+        </div>
+    }
+</div>

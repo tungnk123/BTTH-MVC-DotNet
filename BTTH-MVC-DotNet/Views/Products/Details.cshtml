@@ -3,6 +3,16 @@
 @{
     ViewData["Title"] = "Details";
 }
+@section Css {
+    <link rel="stylesheet" href="~/oganic/css/bootstrap.min.css" type="text/css">
+    <link rel="stylesheet" href="~/oganic/css/font-awesome.min.css" type="text/css">
+    <link rel="stylesheet" href="~/oganic/css/elegant-icons.css" type="text/css">
+    <link rel="stylesheet" href="~/oganic/css/nice-select.css" type="text/css">
+    <link rel="stylesheet" href="~/oganic/css/jquery-ui.min.css" type="text/css">
+    <link rel="stylesheet" href="~/oganic/css/owl.carousel.min.css" type="text/css">
+    <link rel="stylesheet" href="~/oganic/css/slicknav.min.css" type="text/css">
+    <link rel="stylesheet" href="~/oganic/css/style.css" type="text/css">
+}
 
 <h1>Details</h1>
 
@@ -10,34 +20,34 @@
     <h4>Product</h4>
     <hr />
     <dl class="row">
-        <dt class = "col-sm-2">
+        <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.ProductCode)
         </dt>
-        <dd class = "col-sm-10">
+        <dd class="col-sm-10">
             @Html.DisplayFor(model => model.ProductCode)
         </dd>
-        <dt class = "col-sm-2">
+        <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.ProductName)
         </dt>
-        <dd class = "col-sm-10">
+        <dd class="col-sm-10">
             @Html.DisplayFor(model => model.ProductName)
         </dd>
-        <dt class = "col-sm-2">
+        <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.Picture)
         </dt>
-        <dd class = "col-sm-10">
+        <dd class="col-sm-10">
             @Html.DisplayFor(model => model.Picture)
         </dd>
-        <dt class = "col-sm-2">
+        <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.UnitPrice)
         </dt>
-        <dd class = "col-sm-10">
+        <dd class="col-sm-10">
             @Html.DisplayFor(model => model.UnitPrice)
         </dd>
-        <dt class = "col-sm-2">
+        <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.Catalog)
         </dt>
-        <dd class = "col-sm-10">
+        <dd class="col-sm-10">
             @Html.DisplayFor(model => model.Catalog.Id)
         </dd>
     </dl>
@@ -46,3 +56,18 @@
     <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
     <a asp-action="Index">Back to List</a>
 </div>
+
+
+
+
+
+@section Scripts {
+    <script src="~/oganic/js/jquery-3.3.1.min.js"></script>
+    <script src="~/oganic/js/bootstrap.min.js"></script>
+    <script src="~/oganic/js/jquery.nice-select.min.js"></script>
+    <script src="~/oganic/js/jquery-ui.min.js"></script>
+    <script src="~/oganic/js/jquery.slicknav.js"></script>
+    <script src="~/oganic/js/mixitup.min.js"></script>
+    <script src="~/oganic/js/owl.carousel.min.js"></script>
+    <script src="~/oganic/js/main.js"></script>
+}
