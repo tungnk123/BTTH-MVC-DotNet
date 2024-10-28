@@ -2,12 +2,21 @@
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 
 namespace BTTH_MVC_DotNet.Controllers
 {
     public class AuthenController : Controller
     {
+
+        private readonly QuanLySanPhamContext _context;
+
+        public AuthenController()
+        {
+            _context = new QuanLySanPhamContext();
+        }
+
         [HttpGet]
         public IActionResult Login()
         {
@@ -72,5 +81,41 @@ namespace BTTH_MVC_DotNet.Controllers
 
             return RedirectToAction("Index", "Products");
         }
+
+        [HttpGet]
+        public IActionResult Register()
+        {
+            return View();
+        }
+
+
+
+        [HttpPost]
+        public async Task<IActionResult> ConfirmRegister(Account account)
+        {
+            if (ModelState.IsValid)
+            {
+                // Check if username already exists
+                var existingUser = await _context.Accounts
+                    .FirstOrDefaultAsync(a => a.UserName == account.UserName);
+
+                if (existingUser != null)
+                {
+                    ModelState.AddModelError("UserName", "Username already exists.");
+                    return View(account);
+                }
+
+                // Add new account to the database
+                _context.Accounts.Add(account);
+                await _context.SaveChangesAsync();
+
+                // Redirect to login after successful registration
+                return RedirectToAction("Login", "Authen");
+            }
+
+            return View(account);
+        }
+
+        // Existing Login and Logout methods go here
     }
 }
