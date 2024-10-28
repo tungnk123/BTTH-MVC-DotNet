@@ -15,7 +15,7 @@ builder.Services.AddAuthentication(options =>
 })
 .AddCookie(options =>
 {
-    options.LoginPath = "/Account/Login";
+    options.LoginPath = "/Authen/Login";
 });
 
 var app = builder.Build();
@@ -44,7 +44,7 @@ app.UseEndpoints(endpoints =>
 });
 app.MapControllerRoute(
                 name: "default",
-                pattern: "{controller=Account}/{action=Login}/{id?}");
+                pattern: "{controller=Authen}/{action=Login}/{id?}");
 
 app.Run();
 

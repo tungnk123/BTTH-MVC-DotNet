@@ -13,9 +13,9 @@ namespace BTTH_MVC_DotNet.Controllers
     {
         private readonly QuanLySanPhamContext _context;
 
-        public AccountsController(QuanLySanPhamContext context)
+        public AccountsController()
         {
-            _context = context;
+            _context = new QuanLySanPhamContext();
         }
 
         // GET: Accounts
