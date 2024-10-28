@@ -1,8 +1,76 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
-}
+﻿@model IEnumerable<BTTH_MVC_DotNet.Models.Product>
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+@{
+    ViewData["Title"] = "Index";
+    List<Catalog> listCatalog = ViewBag.listCatalog;
+}
+@section Css {
+    <link rel="stylesheet" href="~/oganic/css/bootstrap.min.css" type="text/css">
+    <link rel="stylesheet" href="~/oganic/css/font-awesome.min.css" type="text/css">
+    <link rel="stylesheet" href="~/oganic/css/elegant-icons.css" type="text/css">
+    <link rel="stylesheet" href="~/oganic/css/nice-select.css" type="text/css">
+    <link rel="stylesheet" href="~/oganic/css/jquery-ui.min.css" type="text/css">
+    <link rel="stylesheet" href="~/oganic/css/owl.carousel.min.css" type="text/css">
+    <link rel="stylesheet" href="~/oganic/css/slicknav.min.css" type="text/css">
+    <link rel="stylesheet" href="~/oganic/css/style.css" type="text/css">
+}
+<div class="filter__item">
+    <div class="row">
+        <div class="col-lg-4 col-md-5">
+            <div class="filter__sort">
+                <span>Sort By</span>
+                <select id="sltDanhMuc" style="display: none;">
+                    <option value="-1">Chọn danh mục</option>
+                    @foreach (var item in listCatalog)
+                    {
+                        <option value="@item.Id">@item.CatalogName</option>
+                    }
+                </select>
+            </div>
+        </div>
+        <div id="iddanhsachsanpham_selection" class="row">
+            <div id="iddanhsachsanpham_table"></div>
+        </div>
+    </div>
 </div>
+
+@section Scripts {
+    @* <script src="~/oganic/js/jquery-3.3.1.min.js"></script>
+     <script src="~/oganic/js/bootstrap.min.js"></script>
+     <script src="~/oganic/js/jquery.nice-select.min.js"></script>
+     <script src="~/oganic/js/jquery-ui.min.js"></script>
+     <script src="~/oganic/js/jquery.slicknav.js"></script>
+     <script src="~/oganic/js/mixitup.min.js"></script>
+     <script src="~/oganic/js/owl.carousel.min.js"></script>
+     <script src="~/oganic/js/main.js"></script> *@
+
+    <script>
+        $(document).ready(function () {
+            getSanPhamTable(); // Initial load
+
+            // Event listener for catalog selection change
+            $("#sltDanhMuc").change(function () {
+                selectedDMId = $(this).val();
+                getSanPhamTable();
+            });
+        });
+
+        var selectedDMId = -1; // Default ID for "Chọn danh mục"
+
+        // Fetch and display the product table based on catalog selection
+        function getSanPhamTable() {
+            $.ajax({
+                url: '@Url.Action("GetProductsByCatalog", "Products")',
+                type: 'GET',
+                data: { iddm: selectedDMId },
+                success: function (data) {
+                    $("#iddanhsachsanpham_table").html(data); // Insert response data
+                },
+                error: function (xhr, status, error) {
+                    alert("Error: " + xhr.responseText); // Handle any errors
+                }
+            });
+        }
+    </script>
+
+}
