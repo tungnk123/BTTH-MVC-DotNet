@@ -1,28 +1,62 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Net.Http;
+using System.Net.Http.Json;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using BTTH_MVC_DotNet.Models;
 
 namespace BTTH_MVC_DotNet.Controllers
 {
     public class ProductsController : Controller
     {
+        private readonly HttpClient _httpClient;
         private readonly QuanLySanPhamContext _context;
+        private const string ApiBaseUrlProducts = "https://localhost:7096/api/Products";
+        private const string ApiBaseUrlCatalogs = "https://localhost:7096/api/Catalogs";
 
-        public ProductsController()
+        public ProductsController(HttpClient httpClient)
         {
+            _httpClient = httpClient;
             _context = new QuanLySanPhamContext();
+        }
+        public async Task<IActionResult> GetProductsByCatalog(int iddm)
+        {
+            var products = iddm == -1
+                ? await _httpClient.GetFromJsonAsync<List<Product>>(ApiBaseUrlProducts) // Fetch all products
+                : await _httpClient.GetFromJsonAsync<List<Product>>($"{ApiBaseUrlProducts}?catalogId={iddm}"); // Fetch by catalog ID
+
+            return PartialView("_ListProduct", products);
+        }
+
+
+
+        public async Task<IActionResult> getListProduct(int iddm)
+        {
+            var products = await _httpClient.GetFromJsonAsync<List<Product>>($"{ApiBaseUrlProducts}");
+
+            //if (iddm == -1)
+            //{
+            //    products = _context.Products.Include(p => p.Catalog).ToList();
+            //}
+            //else
+            //{
+            //    products = _context.Products.Where(p => p.CatalogId == iddm).Include(p => p.Catalog).ToList();
+            //}
+            return PartialView("_ListProduct", products);
         }
 
         // GET: Products
         public async Task<IActionResult> Index()
         {
-            var quanLySanPhamContext = _context.Products.Include(p => p.Catalog);
-            return View(await quanLySanPhamContext.ToListAsync());
+            var products = await _httpClient.GetFromJsonAsync<List<Product>>($"{ApiBaseUrlProducts}");
+            var catalogs = await _httpClient.GetFromJsonAsync<List<Catalog>>($"{ApiBaseUrlCatalogs}");
+
+            ViewBag.listCatalog = catalogs;
+            return View(products);
         }
 
         // GET: Products/Details/5
@@ -33,9 +67,7 @@ namespace BTTH_MVC_DotNet.Controllers
                 return NotFound();
             }
 
-            var product = await _context.Products
-                .Include(p => p.Catalog)
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var product = await _httpClient.GetFromJsonAsync<Product>($"{ApiBaseUrlProducts}/{id}");
             if (product == null)
             {
                 return NotFound();
@@ -47,24 +79,26 @@ namespace BTTH_MVC_DotNet.Controllers
         // GET: Products/Create
         public IActionResult Create()
         {
-            ViewData["CatalogId"] = new SelectList(_context.Catalogs, "Id", "Id");
+            // Assuming you have a Catalog endpoint to get catalog list
+            // You can replace with appropriate code for loading Catalog list
+            ViewData["CatalogId"] = new SelectList(new List<SelectListItem>(), "Id", "Id");
             return View();
         }
 
         // POST: Products/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,CatalogId,ProductCode,ProductName,Picture,UnitPrice")] Product product)
+        public async Task<IActionResult> Create(Product product)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(product);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                var response = await _httpClient.PostAsJsonAsync($"{ApiBaseUrlProducts}", product);
+                if (response.IsSuccessStatusCode)
+                {
+                    return RedirectToAction(nameof(Index));
+                }
             }
-            ViewData["CatalogId"] = new SelectList(_context.Catalogs, "Id", "Id", product.CatalogId);
+            ViewData["CatalogId"] = new SelectList(new List<SelectListItem>(), "Id", "Id", product.CatalogId);
             return View(product);
         }
 
@@ -76,21 +110,19 @@ namespace BTTH_MVC_DotNet.Controllers
                 return NotFound();
             }
 
-            var product = await _context.Products.FindAsync(id);
+            var product = await _httpClient.GetFromJsonAsync<Product>($"{ApiBaseUrlProducts}/{id}");
             if (product == null)
             {
                 return NotFound();
             }
-            ViewData["CatalogId"] = new SelectList(_context.Catalogs, "Id", "Id", product.CatalogId);
+            ViewData["CatalogId"] = new SelectList(new List<SelectListItem>(), "Id", "Id", product.CatalogId);
             return View(product);
         }
 
         // POST: Products/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,CatalogId,ProductCode,ProductName,Picture,UnitPrice")] Product product)
+        public async Task<IActionResult> Edit(int id, Product product)
         {
             if (id != product.Id)
             {
@@ -99,25 +131,13 @@ namespace BTTH_MVC_DotNet.Controllers
 
             if (ModelState.IsValid)
             {
-                try
+                var response = await _httpClient.PutAsJsonAsync($"{ApiBaseUrlProducts}/{id}", product);
+                if (response.IsSuccessStatusCode)
                 {
-                    _context.Update(product);
-                    await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(Index));
                 }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!ProductExists(product.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
             }
-            ViewData["CatalogId"] = new SelectList(_context.Catalogs, "Id", "Id", product.CatalogId);
+            ViewData["CatalogId"] = new SelectList(new List<SelectListItem>(), "Id", "Id", product.CatalogId);
             return View(product);
         }
 
@@ -129,9 +149,7 @@ namespace BTTH_MVC_DotNet.Controllers
                 return NotFound();
             }
 
-            var product = await _context.Products
-                .Include(p => p.Catalog)
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var product = await _httpClient.GetFromJsonAsync<Product>($"{ApiBaseUrlProducts}/{id}");
             if (product == null)
             {
                 return NotFound();
@@ -145,19 +163,12 @@ namespace BTTH_MVC_DotNet.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var product = await _context.Products.FindAsync(id);
-            if (product != null)
+            var response = await _httpClient.DeleteAsync($"{ApiBaseUrlProducts}/{id}");
+            if (response.IsSuccessStatusCode)
             {
-                _context.Products.Remove(product);
+                return RedirectToAction(nameof(Index));
             }
-
-            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
-        }
-
-        private bool ProductExists(int id)
-        {
-            return _context.Products.Any(e => e.Id == id);
         }
     }
 }
