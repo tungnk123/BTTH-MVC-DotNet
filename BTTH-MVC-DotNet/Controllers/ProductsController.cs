@@ -37,15 +37,6 @@ namespace BTTH_MVC_DotNet.Controllers
         public async Task<IActionResult> getListProduct(int iddm)
         {
             var products = await _httpClient.GetFromJsonAsync<List<Product>>($"{ApiBaseUrlProducts}");
-
-            //if (iddm == -1)
-            //{
-            //    products = _context.Products.Include(p => p.Catalog).ToList();
-            //}
-            //else
-            //{
-            //    products = _context.Products.Where(p => p.CatalogId == iddm).Include(p => p.Catalog).ToList();
-            //}
             return PartialView("_ListProduct", products);
         }
 
@@ -54,6 +45,7 @@ namespace BTTH_MVC_DotNet.Controllers
         {
             var products = await _httpClient.GetFromJsonAsync<List<Product>>($"{ApiBaseUrlProducts}");
             var catalogs = await _httpClient.GetFromJsonAsync<List<Catalog>>($"{ApiBaseUrlCatalogs}");
+
 
             ViewBag.listCatalog = catalogs;
             return View(products);

@@ -22,9 +22,13 @@ namespace BTTH_MVC_DotNet_API.Controllers
 
         // GET: api/Products
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Product>>> GetProducts()
+        public async Task<ActionResult<IEnumerable<Product>>> GetProducts([FromQuery] int? catalogId)
         {
-            return await _context.Products.ToListAsync();
+            var products = catalogId.HasValue
+                ? await _context.Products.Where(p => p.CatalogId == catalogId.Value).ToListAsync()
+                : await _context.Products.ToListAsync();
+
+            return products;
         }
 
         // GET: api/Products/5

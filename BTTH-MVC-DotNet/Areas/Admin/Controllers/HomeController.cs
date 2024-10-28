@@ -14,7 +14,7 @@ namespace BTTH_MVC_DotNet.Areas.Admin.Controllers
         {
             HttpContext.Session.Clear();
             HttpContext.Session.Remove("UserName");
-            return RedirectToAction("Login", "Account", new { area = "" });
+            return RedirectToAction("Login", "Authen", new { area = "" });
         }
 
     }
